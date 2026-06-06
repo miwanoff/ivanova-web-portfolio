@@ -82,10 +82,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Портфоліо веб-розробниці Марини Іванової. Сучасні веб-додатки, React, TypeScript та натхненні дизайном інтерфейси." },
       { name: "author", content: "Марина Іванова" },
       { property: "og:title", content: "Марина Іванова — Веб-розробниця" },
-      { property: "og:description", content: "Сучасні веб-додатки та інтерфейси." },
+      { property: "og:description", content: "Портфоліо веб-розробниці Марини Іванової. Сучасні веб-додатки, React, TypeScript та натхненні дизайном інтерфейси." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Марина Іванова — Веб-розробниця" },
+      { name: "twitter:description", content: "Портфоліо веб-розробниці Марини Іванової. Сучасні веб-додатки, React, TypeScript та натхненні дизайном інтерфейси." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fbd3d62e-5d6a-45b1-ad17-fc0ff467b6f2/id-preview-7844c822--d43c4fa9-467f-4ef8-9677-4f8e6f950bba.lovable.app-1780734088151.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fbd3d62e-5d6a-45b1-ad17-fc0ff467b6f2/id-preview-7844c822--d43c4fa9-467f-4ef8-9677-4f8e6f950bba.lovable.app-1780734088151.png" },
     ],
     links: [
       {
