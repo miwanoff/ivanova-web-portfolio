@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useServerFn } from "@tanstack/react-start";
+
+import { contactSchema, sendContactMessage, type ContactInput } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -15,6 +20,33 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const send = useServerFn(sendContactMessage);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactInput>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: "", email: "", budget: "", message: "" },
+  });
+
+  const onSubmit = async (values: ContactInput) => {
+    setServerError(null);
+    try {
+      const result = await send({ data: values });
+      if (result.success) {
+        setSent(true);
+      } else {
+        setServerError(result.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setServerError("Сталася помилка. Спробуйте пізніше.");
+    }
+  };
+
   return (
     <div className="relative min-h-[80vh]">
       <div className="absolute inset-0 tech-grid-bg opacity-30 animate-grid" />
@@ -35,7 +67,8 @@ function ContactPage() {
         </div>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
           className="border border-border rounded-xl p-8 bg-card/70 backdrop-blur animate-float-up space-y-5"
           style={{ animationDelay: "0.2s" }}
         >
@@ -46,15 +79,28 @@ function ContactPage() {
             </div>
           ) : (
             <>
-              <Field label="Ваше ім'я" name="name" />
-              <Field label="Email" name="email" type="email" />
-              <Field label="Бюджет" name="budget" placeholder="$5K – $20K" />
+              <Field label="Ваше ім'я" error={errors.name?.message} inputProps={register("name")} />
+              <Field label="Email" type="email" error={errors.email?.message} inputProps={register("email")} />
+              <Field label="Бюджет (необов'язково)" placeholder="$5K – $20K" error={errors.budget?.message} inputProps={register("budget")} />
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Розкажіть про проєкт</label>
-                <textarea required rows={5} className="w-full bg-background border border-border rounded-md px-4 py-3 focus:border-primary focus:outline-none transition" />
+                <textarea
+                  rows={5}
+                  aria-invalid={!!errors.message}
+                  {...register("message")}
+                  className="w-full bg-background border border-border rounded-md px-4 py-3 focus:border-primary focus:outline-none transition"
+                />
+                {errors.message && <p className="mt-2 text-xs text-destructive">{errors.message.message}</p>}
               </div>
-              <button className="w-full py-4 bg-primary text-primary-foreground font-mono uppercase tracking-wider text-sm hover:shadow-[var(--shadow-glow)] transition">
-                Надіслати →
+              {serverError && (
+                <p className="text-sm text-destructive border border-destructive/40 rounded-md px-4 py-3">{serverError}</p>
+              )}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-primary text-primary-foreground font-mono uppercase tracking-wider text-sm hover:shadow-[var(--shadow-glow)] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Надсилаю..." : "Надіслати →"}
               </button>
             </>
           )}
@@ -64,17 +110,30 @@ function ContactPage() {
   );
 }
 
-function Field({ label, name, type = "text", placeholder }: { label: string; name: string; type?: string; placeholder?: string }) {
+function Field({
+  label,
+  type = "text",
+  placeholder,
+  error,
+  inputProps,
+}: {
+  label: string;
+  type?: string;
+  placeholder?: string;
+  error?: string;
+  inputProps: React.InputHTMLAttributes<HTMLInputElement>;
+}) {
   return (
     <div>
       <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">{label}</label>
       <input
-        required
         type={type}
-        name={name}
         placeholder={placeholder}
+        aria-invalid={!!error}
+        {...inputProps}
         className="w-full bg-background border border-border rounded-md px-4 py-3 focus:border-primary focus:outline-none transition"
       />
+      {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
