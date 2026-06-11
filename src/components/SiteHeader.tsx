@@ -48,6 +48,7 @@ export function SiteFooter() {
           <a href="https://github.com" className="hover:text-primary transition">GitHub</a>
           <a href="https://linkedin.com" className="hover:text-primary transition">LinkedIn</a>
           <a href="https://t.me" className="hover:text-primary transition">Telegram</a>
+          <Link to="/inbox" className="hover:text-primary transition">Вхідні 🔒</Link>
         </div>
       </div>
     </footer>
